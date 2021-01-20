@@ -3,7 +3,9 @@
 #include <algorithm>
 #include <iostream>
 #include <sstream>
-
+#ifdef LINUX
+#include <cstring>
+#endif
 using namespace std;
 
 class BigInteger {
@@ -42,7 +44,11 @@ public:
 		{
 			int end = str.length() - i * WIDTH;
 			int start = max(0, end - WIDTH);
+#ifdef LINUX
+			sscanf(str.substr(start, end - start).c_str(), "%d", &x);
+#else
 			sscanf_s(str.substr(start, end - start).c_str(), "%d", &x);
+#endif
 			s.push_back(x);
 		}
 
@@ -76,7 +82,7 @@ public:
 		return c;
 	}
 
-	BigInteger operator+=(const BigInteger &b)
+	BigInteger operator+=(const BigInteger& b)
 	{
 		*this = *this + b;
 		return *this;
@@ -113,7 +119,7 @@ public:
 			{
 				c.s.push_back(((x % BASE) + BASE) % BASE);
 			}
-			g = x >= 0 ? x / BASE : -1; 
+			g = x >= 0 ? x / BASE : -1;
 		}
 		return c;
 	}
@@ -140,7 +146,7 @@ public:
 		}
 		std::string operand2 = ss.str();
 		std::vector<int> c, d, temp;
-			
+
 		for (int i = operand1.length() - 1; i >= 0; i--)
 		{
 			c.push_back(operand1[i] - '0');
@@ -177,7 +183,7 @@ public:
 		BigInteger another;
 		another.s.clear();
 
-		int len = (m ) / WIDTH + 1;
+		int len = (m) / WIDTH + 1;
 
 		for (int i = 0; i < len; i++)
 		{
@@ -187,7 +193,7 @@ public:
 		{
 			int x = 1;
 			int k = 0;
-			int end = std::min(m + 1, (i + 1)*WIDTH);
+			int end = std::min(m + 1, (i + 1) * WIDTH);
 			int start = i * WIDTH;
 			for (int j = start; j < end; j++)
 			{
@@ -218,7 +224,6 @@ public:
 			*this -= b;
 			another += 1;
 		}
-	}
 		return another;
 	}
 
@@ -231,7 +236,7 @@ public:
 	BigInteger operator%(const BigInteger& b)
 	{
 		BigInteger result;
-		result = *this -( *this / b) * b;
+		result = *this - (*this / b) * b;
 		return result;
 	}
 
@@ -277,7 +282,7 @@ public:
 	bool operator==(const BigInteger& b)
 	{
 		return !(*this < b) && !(*this > b);
-		
+
 	}
 
 	bool operator!=(const BigInteger& b)
@@ -294,9 +299,11 @@ public:
 		for (i = x.s.size() - 2; i >= 0; i--) {
 
 			char buf[20];
-
+#ifdef LINUX
+			sprintf(buf, "%08d", x.s[i]);//不足8位补0
+#else
 			sprintf_s(buf, "%08d", x.s[i]);//不足8位补0
-
+#endif
 			for (int j = 0; j < strlen(buf); j++)
 
 				out << buf[j];
